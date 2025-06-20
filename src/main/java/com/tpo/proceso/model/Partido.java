@@ -24,20 +24,15 @@ public class Partido implements PartidoSubject {
 
     private LocalDateTime fechaCreacion;
 
-    /** Deporte del partido, p.ej. "FUTBOL", "BASQUET", etc. */
     @Column(nullable = false)
     private String deporte;
 
     @Embedded
     private Geolocalizacion geolocalizacion;
 
-    /** Cantidad de jugadores requeridos para confirmar */
     private int cantidadJugadoresRequeridos;
 
-    /**
-     * Nivel mínimo y nivel máximo de habilidad permitidos
-     * (por ejemplo "Principiante", "Intermedio", "Avanzado").
-     */
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Nivel nivelMinimo;
@@ -54,10 +49,8 @@ public class Partido implements PartidoSubject {
     )
     private Set<Usuario> jugadores = new HashSet<>();
 
-    /** Persistimos sólo el nombre del estado. */
     private String estadoNombre;
 
-    /** Estado en memoria (no persistible) */
     @Transient
     private IEstadoPartido estado;
 

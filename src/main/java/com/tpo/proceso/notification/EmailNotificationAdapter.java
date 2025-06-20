@@ -1,7 +1,6 @@
 // src/main/java/com/tpo/proceso/notification/EmailNotificationAdapter.java
 package com.tpo.proceso.notification;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;

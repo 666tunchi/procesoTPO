@@ -1,6 +1,6 @@
 package com.tpo.proceso.state;
 
-import com.tpo.proceso.model.Partido;
+import com.tpo.proceso.model.PartidoContext;
 import com.tpo.proceso.model.Usuario;
 
 public class FinalizadoState implements IEstadoPartido{
@@ -9,19 +9,19 @@ public class FinalizadoState implements IEstadoPartido{
         return "Finalizado";
     }
 
-    @Override public void agregarJugador(Partido partido, Usuario jugador) {
+    @Override public void agregarJugador(PartidoContext context, Usuario jugador) {
         throw new IllegalStateException("Partido finalizado: no se pueden agregar jugadores.");
     }
-    @Override public void confirmar(Partido partido) {
+    @Override public void confirmar(PartidoContext context) {
         throw new IllegalStateException("Partido finalizado.");
     }
-    @Override public void iniciar(Partido partido) {
+    @Override public void iniciar(PartidoContext context) {
         throw new IllegalStateException("Partido finalizado.");
     }
-    @Override public void finalizar(Partido partido) {
+    @Override public void finalizar(PartidoContext context) {
         // no-op: ya finalizado
     }
-    @Override public void cancelar(Partido partido) {
+    @Override public void cancelar(PartidoContext context) {
         throw new IllegalStateException("Partido finalizado.");
     }
 }

@@ -1,31 +1,31 @@
 package com.tpo.proceso.state;
 
-import com.tpo.proceso.model.Partido;
+import com.tpo.proceso.model.PartidoContext;
 import com.tpo.proceso.model.Usuario;
 
 public class PartidoArmadoState implements IEstadoPartido {
     @Override
-    public void agregarJugador(Partido partido, Usuario jugador) {
+    public void agregarJugador(PartidoContext context, Usuario jugador) {
 
     }
 
     @Override
-    public void confirmar(Partido partido) {
+    public void confirmar(PartidoContext context) {
 
     }
 
     @Override
-    public void iniciar(Partido partido) {
+    public void iniciar(PartidoContext context) {
 
     }
 
     @Override
-    public void finalizar(Partido partido) {
+    public void finalizar(PartidoContext context) {
 
     }
 
     @Override
-    public void cancelar(Partido partido) {
+    public void cancelar(PartidoContext context) {
 
     }
 

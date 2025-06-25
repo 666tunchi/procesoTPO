@@ -4,16 +4,15 @@ import com.tpo.proceso.Observer.PartidoObserver;
 import com.tpo.proceso.dto.GeolocalizacionDto;
 import com.tpo.proceso.dto.PartidoRequestDto;
 import com.tpo.proceso.dto.PartidoResponseDto;
-import com.tpo.proceso.model.UsuarioDTO;
 import com.tpo.proceso.model.Geolocalizacion;
 import com.tpo.proceso.model.Partido;
+import com.tpo.proceso.model.PartidoContext;
 import com.tpo.proceso.model.Usuario;
 import com.tpo.proceso.model.UsuarioDTO;
 import com.tpo.proceso.repository.PartidoRepository;
 import com.tpo.proceso.repository.UserRepository;
 import com.tpo.proceso.service.EmparejamientoService;
 import com.tpo.proceso.service.ObserverRegistrarService;
-import com.tpo.proceso.service.PartidoService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +35,7 @@ public class PartidoController {
     private final EmparejamientoService emparejamientoService;
     private final ObserverRegistrarService observerRegistrarService;
     private final List<PartidoObserver> observers;  // inyecta todos tus observers
-
+    private final PartidoContext partidoContext;
 
     @GetMapping
     public List<PartidoResponseDto> getAllPartidos() {
@@ -66,10 +65,11 @@ public class PartidoController {
 
         Partido saved = partidoRepository.save(p);
 
-        // Aquí “adaptamos” el Partido al Observer pattern
+        // Aquí "adaptamos" el Partido al Observer pattern
         observerRegistrarService.attachAll(saved);
 
-        saved.notifyObservers();
+        partidoContext.setPartido(saved);
+        partidoContext.notifyObservers();
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(toDto(saved));
@@ -110,7 +110,9 @@ public class PartidoController {
         Partido p = partidoRepository.findById(id)
                 .orElseThrow(() ->
                         new EntityNotFoundException("Partido no encontrado: " + id));
-        p.agregarJugador(jugador);
+        
+        partidoContext.setPartido(p);
+        partidoContext.agregarJugador(jugador);
         Partido saved = partidoRepository.save(p);
         return ResponseEntity.ok(toDto(saved));
     }
@@ -126,7 +128,8 @@ public class PartidoController {
 
         try {
             // Intentamos confirmar (si el estado no lo permite, lanza)
-            p.confirmar();
+            partidoContext.setPartido(p);
+            partidoContext.confirmar();
         } catch (IllegalStateException ex) {
             // Retornamos 400 con el mensaje de por qué no se pudo confirmar
             return ResponseEntity
@@ -148,7 +151,8 @@ public class PartidoController {
                 .orElseThrow(() ->
                         new EntityNotFoundException("Partido no encontrado: " + id));
         observerRegistrarService.attachAll(p);
-        p.iniciar();
+        partidoContext.setPartido(p);
+        partidoContext.iniciar();
         return ResponseEntity.ok(toDto(partidoRepository.save(p)));
     }
 
@@ -159,7 +163,8 @@ public class PartidoController {
                         new EntityNotFoundException("Partido no encontrado: " + id));
         observerRegistrarService.attachAll(p);
 
-        p.finalizar();
+        partidoContext.setPartido(p);
+        partidoContext.finalizar();
         return ResponseEntity.ok(toDto(partidoRepository.save(p)));
     }
 
@@ -170,7 +175,8 @@ public class PartidoController {
                         new EntityNotFoundException("Partido no encontrado: " + id));
         observerRegistrarService.attachAll(p);
 
-        p.cancelar();
+        partidoContext.setPartido(p);
+        partidoContext.cancelar();
         return ResponseEntity.ok(toDto(partidoRepository.save(p)));
     }
 
@@ -186,7 +192,6 @@ public class PartidoController {
     }
 
     // —————— Mapeos DTO ⇄ Entidad ——————
-
 
     private PartidoResponseDto toDto(Partido p) {
         List<UsuarioDTO> jugadores = p.getJugadores().stream()

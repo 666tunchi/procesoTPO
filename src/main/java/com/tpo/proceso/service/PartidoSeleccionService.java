@@ -1,6 +1,7 @@
 package com.tpo.proceso.service;
 
 import com.tpo.proceso.model.Partido;
+import com.tpo.proceso.model.PartidoContext;
 import com.tpo.proceso.model.Usuario;
 import com.tpo.proceso.repository.PartidoRepository;
 import com.tpo.proceso.repository.UserRepository;
@@ -19,21 +20,24 @@ public class PartidoSeleccionService {
     private final Map<String, PartidoSeleccionStrategy> strategies;
     private final PartidoRepository partidoRepo;
     private final UserRepository usuarioRepo;
+    private final PartidoContext partidoContext;
 
     @Autowired
     public PartidoSeleccionService(
             Map<String, PartidoSeleccionStrategy> strategies,
             PartidoRepository partidoRepo,
-            UserRepository usuarioRepo
+            UserRepository usuarioRepo,
+            PartidoContext partidoContext
     ) {
         this.strategies   = strategies;
         this.partidoRepo  = partidoRepo;
         this.usuarioRepo  = usuarioRepo;
+        this.partidoContext = partidoContext;
     }
 
     /**
-     * Devuelve el mejor Partido “abierto” al que el usuario puede unirse,
-     * según el criterio (“porCercaniaPartido”, “porNivelPartido” o “porHistorialPartido”).
+     * Devuelve el mejor Partido "abierto" al que el usuario puede unirse,
+     * según el criterio ("porCercaniaPartido", "porNivelPartido" o "porHistorialPartido").
      */
     public Optional<Partido> buscar(String criterio, Usuario solicitante) {
         List<Partido> abiertos =
@@ -52,7 +56,8 @@ public class PartidoSeleccionService {
         Partido p = partidoRepo.findById(partidoId)
                 .orElseThrow(() -> new IllegalArgumentException("Partido no existe"));
 
-        p.agregarJugador(u);
+        partidoContext.setPartido(p);
+        partidoContext.agregarJugador(u);
         partidoRepo.save(p);
         return p;
     }

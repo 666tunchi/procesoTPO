@@ -2,6 +2,7 @@ package com.tpo.proceso.service;
 
 import com.tpo.proceso.Observer.PartidoObserver;
 import com.tpo.proceso.model.Partido;
+import com.tpo.proceso.model.PartidoContext;
 import com.tpo.proceso.model.Usuario;
 import com.tpo.proceso.repository.PartidoRepository;
 import com.tpo.proceso.repository.UserRepository;
@@ -19,23 +20,25 @@ public class PartidoService {
 
     private final PartidoRepository partidoRepository;
     private final List<PartidoObserver> observers;
-
     private final UserRepository usuarioRepository;
-
+    private final PartidoContext partidoContext;
 
     public PartidoService(PartidoRepository partidoRepository,
                           List<PartidoObserver> observers,
-                          UserRepository usuarioRepository) {
+                          UserRepository usuarioRepository,
+                          PartidoContext partidoContext) {
         this.partidoRepository = partidoRepository;
         this.observers = observers;
         this.usuarioRepository = usuarioRepository;
+        this.partidoContext = partidoContext;
     }
 
     private void registerObservers(Partido partido) {
+        partidoContext.setPartido(partido);
         // Primero eliminamos todos los observers para evitar registros duplicados
-        observers.forEach(partido::removeObserver);
+        observers.forEach(partidoContext::removeObserver);
         // Luego registramos todos los observers activos en Spring
-        observers.forEach(partido::registerObserver);
+        observers.forEach(partidoContext::registerObserver);
     }
 
     public Partido crearPartido(int cantidadJugadoresRequeridos) {
@@ -65,27 +68,31 @@ public class PartidoService {
 
     public Partido cambiarEstado(int id, String nombreEstado) {
         Partido partido = obtenerPorId(id);
+        partidoContext.setPartido(partido);
         IEstadoPartido nuevoEstado = EstadoPartidoFactory.getEstado(nombreEstado);
-        partido.cambiarEstado(nuevoEstado);
+        partidoContext.cambiarEstado(nuevoEstado);
         return partidoRepository.save(partido);
     }
 
     public Partido agregarJugador(int id, Usuario jugador) {
         Partido partido = obtenerPorId(id);
-        partido.agregarJugador(jugador);
+        partidoContext.setPartido(partido);
+        partidoContext.agregarJugador(jugador);
         return partidoRepository.save(partido);
     }
 
     public Partido confirmarPartido(int id) {
         Partido partido = obtenerPorId(id);
-        partido.confirmar();
+        partidoContext.setPartido(partido);
+        partidoContext.confirmar();
         return partidoRepository.save(partido);
     }
 
     @Transactional
     public Partido iniciarPartido(int id) {
         Partido partido = obtenerPorId(id);
-        partido.iniciar();
+        partidoContext.setPartido(partido);
+        partidoContext.iniciar();
         // Guarda primero el partido (opcional, para actualizar estadoNombre)
         partidoRepository.save(partido);
 
@@ -97,13 +104,15 @@ public class PartidoService {
 
     public Partido finalizarPartido(int id) {
         Partido partido = obtenerPorId(id);
-        partido.finalizar();
+        partidoContext.setPartido(partido);
+        partidoContext.finalizar();
         return partidoRepository.save(partido);
     }
 
     public Partido cancelarPartido(int id) {
         Partido partido = obtenerPorId(id);
-        partido.cancelar();
+        partidoContext.setPartido(partido);
+        partidoContext.cancelar();
         return partidoRepository.save(partido);
     }
 }

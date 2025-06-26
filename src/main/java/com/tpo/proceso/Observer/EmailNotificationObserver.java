@@ -1,4 +1,3 @@
-// src/main/java/com/tpo/proceso/Observer/EmailNotificationObserver.java
 package com.tpo.proceso.Observer;
 
 import com.tpo.proceso.model.Partido;
@@ -26,18 +25,25 @@ public class EmailNotificationObserver implements PartidoObserver {
     public void onEstadoCambiado(Partido partido) {
         String estado = partido.getEstadoNombre();
         String title  = "Partido #" + partido.getId() + " → " + estado;
+        
+        // Obtener coordenadas del partido
+        double latitud = partido.getGeolocalizacion().getLatitud();
+        double longitud = partido.getGeolocalizacion().getLongitud();
+        String googleMapsLink = "https://www.google.com/maps/place/" + latitud + "," + longitud;
+        
         String body   = "El partido de " + partido.getDeporte() +
-                " pasó a estado: " + estado;
+                " pasó a estado: " + estado + "\n\n" +
+                "Ubicación: " + googleMapsLink;
 
         List<String> targets;
         if ("Necesitamos jugadores".equals(estado)) {
-            // i) Notificar a TODOS los fans de este deporte
+            //  Notificar a TODOS los fans de este deporte
             targets = usuarioRepo.findByDeporte(partido.getDeporte())
                     .stream()
                     .map(u -> u.getMail())
                     .collect(Collectors.toList());
         } else {
-            // ii–iv) Notificar sólo a los INSCRITOS
+            //Notificar sólo a los INSCRITOS
             targets = partido.getJugadores().stream()
                     .map(u -> u.getMail())
                     .collect(Collectors.toList());

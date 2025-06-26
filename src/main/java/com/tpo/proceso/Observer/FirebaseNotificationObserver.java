@@ -24,8 +24,13 @@ public class FirebaseNotificationObserver implements PartidoObserver {
                 " pasó a estado: " + estado;
 
         if ("Necesitamos jugadores".equals(estado)) {
-            // i) Topic por deporte
-            String topic = "deporte_" + partido.getDeporte();
+            // i) Topic por deporte - limpiar el nombre del deporte
+            String deporteLimpio = partido.getDeporte()
+                    .toLowerCase()
+                    .replaceAll("[^a-zA-Z0-9]", "_")
+                    .replaceAll("_+", "_")
+                    .replaceAll("^_|_$", "");
+            String topic = "deporte_" + deporteLimpio;
             firebaseAdapter.sendNotification(topic, title, body, partido.getId());
         } else {
             // ii–iv) Topic por partido
